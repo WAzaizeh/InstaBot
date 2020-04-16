@@ -1,0 +1,14 @@
+beautifulsoup4==4.8.2
+bs4==0.0.1
+Click==7.0
+click-plugins==1.1.1
+matplotlib==3.1.1
+numpy==1.17.2
+numpydoc==0.9.1
+opencv-python==3.4.5.20
+pandas==0.25.1
+pip-autoremove==0.9.1
+python3-wget==0.0.2b1
+requests==2.22.0
+selenium==3.141.0
+urllib3==1.24.2

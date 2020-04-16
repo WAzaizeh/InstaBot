@@ -1,0 +1,16 @@
+{
+  "db": {
+    "filepath": "",
+    "name": "mosaab_instabot"
+  },
+  "instagram": {
+    "user": "",
+    "pass": ""
+  },
+  "config": {
+    "days_to_unfollow": 3,
+    "likes_over": 150,
+    "check_followers_every": 10,
+    "hashtags": ["photography", "Lightroom", "DepthOfField", "Aperature"]
+  }
+}
