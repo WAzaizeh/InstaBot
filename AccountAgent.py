@@ -3,29 +3,26 @@ import datetime
 import UsersHandler, Constants
 import traceback
 import random
-from selenium.common.exceptions import NoSuchElementException 
+from csvHandler import csvHandler
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException
 
 def login(webdriver):
-    #Open the instagram login page
+    # Open the instagram login page
     webdriver.get('https://www.instagram.com/accounts/login/?source=auth_switcher')
-    #sleep for 3 seconds to prevent issues with the server
+    # Sleep for 3 seconds to prevent issues with the server
     sleep(3)
-    #Find username and password fields and set their input using our constants
+    # Find username and password fields and set their input using our constants
+    print('Logging in....')
     username = webdriver.find_element_by_name('username')
     username.send_keys(Constants.INST_USER)
     password = webdriver.find_element_by_name('password')
     password.send_keys(Constants.INST_PASS)
-    #Get the login button
-    try:
-        button_login = webdriver.find_element_by_xpath(
-            '//*[@id="react-root"]/section/main/div/article/div/div[1]/div/form/div[4]/button')
-    except:
-        button_login = webdriver.find_element_by_xpath(
-            '//*[@id="react-root"]/section/main/div/article/div/div[1]/div/form/div[6]/button/div')
-    #sleep again
-    sleep(2)
-    #click login
-    button_login.click()
+    password.send_keys(Keys.RETURN)
+    print('Login complete')
     sleep(3)
     #In case you get a popup after logging in, press not now.
     #If not, then just return
@@ -35,7 +32,6 @@ def login(webdriver):
         notnow.click()
     except:
         return
-
 
 def unfollow_people(webdriver, people):
     #if only one user, append in a list
@@ -52,6 +48,7 @@ def unfollow_people(webdriver, people):
             unfollow_xpath = '//*[@id="react-root"]/section/main/div/header/section/div[1]/div[1]/span/span[1]/button'
             unfollow_confirm_css = 'body > div.RnEpo.Yx5HN > div > div > div.mt3GC > button.aOOlW.-Cab_'
 
+            # to optimize page opening need an xpath that isn't dependent on follow status
             if webdriver.find_element_by_xpath(unfollow_xpath).text == "Following":
                 sleep(random.randint(1, 7))
                 webdriver.find_element_by_xpath(unfollow_xpath).click()
@@ -72,7 +69,8 @@ def unfollow_people(webdriver, people):
 
 def follow_people(webdriver):
     # get and store all the followed user
-    prev_user_list = UsersHandler.get_followed_users()
+    db = csvHandler()
+    prev_user_list = db.get_followed_users()
     new_followed = []
 
     #counters
@@ -83,10 +81,13 @@ def follow_people(webdriver):
     for hashtag in Constants.HASHTAGS:
         # visit the hashtag
         webdriver.get('https://www.instagram.com/explore/tags/' + hashtag+ '/')
-        sleep(5)
+        sleep(5) # replace with DriverWait
 
         # start from the 1st most recent post
-        most_recent = webdriver.find_element_by_xpath('//*[@id="react-root"]/section/main/article/div[2]/div/div[1]/div[1]/a/div[1]')
+        print('Starting to follow and like under #{0}....'.format(hashtag))
+        most_recent_xpath = '//*[@id="react-root"]/section/main/article/div[2]/div/div[1]/div[1]/a/div[1]'
+        WebDriverWait(webdriver, 10).until(EC.visibility_of_element_located((By.XAPTH, most_recent_xpath)))
+        most_recent = webdriver.find_element_by_xpath(most_recent_xpath)
         most_recent.click()
         sleep(random.randint(1,3))
 

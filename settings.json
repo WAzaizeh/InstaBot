@@ -1,7 +1,8 @@
 {
-  "db": {
+  "paths": {
     "filepath": "",
-    "name": "mosaab_instabot"
+    "name": "mosaab_instabot",
+    "chrome_driver_path": "/Users/wesamazaizeh/Desktop/Projects/InstaBot/chromedriver"
   },
   "instagram": {
     "user": "",
