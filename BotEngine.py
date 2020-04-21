@@ -47,6 +47,8 @@ def _check_follow_list(developer_mode):
         AccountAgent.login(webdriver)
         AccountAgent.unfollow_people(webdriver, users)
         close_driver(webdriver)
+    else:
+        pint("No users to unfollow at the moment...")
 
 def _follow_new_users(developer_mode):
     webdriver = get_webdriver(developer_mode=developer_mode)
