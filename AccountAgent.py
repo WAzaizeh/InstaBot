@@ -92,7 +92,7 @@ def follow_people(webdriver):
     for hashtag in Constants.HASHTAGS:
         # visit the hashtag
         webdriver.get('https://www.instagram.com/explore/tags/' + hashtag+ '/')
-        sleep(5) # replace with DriverWait
+        sleep(5) # to prevent issues with the server
 
         # start from the 1st most recent post
         print('Starting to follow & like new users under #{}....'.format(hashtag))
@@ -118,7 +118,7 @@ def follow_people(webdriver):
                     WebDriverWait(webdriver, 10).until(EC.visibility_of_element_located((By.XPATH, likes_num_xpath)))
                     likes_num = webdriver.find_element_by_xpath(likes_num_xpath).text
                     likes_num = int(likes_num.replace(',', '')) # strip the comma if there's any
-                except NoSuchElementException:
+                except TimeoutException:
                     likes_num = 0 # if the post has no likes
                 if likes_num > Constants.LIKES_LIMIT:
                     print("likes over {0}".format(Constants.LIKES_LIMIT))
@@ -127,7 +127,7 @@ def follow_people(webdriver):
                 # if username isn't stored in the database and the likes are in the acceptable range
                 if username not in prev_user_list and not likes_over_limit:
                     # confirm that the Follow button is visible before clicking
-                    follow_button_xapth = "//button[contains(text(), 'Follow')]"
+                    follow_button_xapth = "//div[@class='bY2yH']/button[contains(text(), 'Follow')]"
                     try:
                         WebDriverWait(webdriver, 10).until(EC.visibility_of_element_located((By.XPATH, follow_button_xapth)))
                         webdriver.find_element_by_xpath(follow_button_xapth).click()
@@ -135,7 +135,7 @@ def follow_people(webdriver):
                         followed += 1
                         print("Followed: {0}, #{1}".format(username, followed))
                         new_followed.append(username)
-                    except NoSuchElementException:
+                    except TimeoutException:
                         continue
 
                 # Liking the picture
