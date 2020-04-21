@@ -115,7 +115,7 @@ def follow_people(webdriver):
                 like_button_xpath = '//*/span[@class="fr66n"]/button[@type="button"]'
                 likes_num_xpath = '//*/div[@class="Nm9Fw"]/button[@type="button"]/span'
                 try:
-                    WebDriverWait(webdriver, 4).until(EC.visibility_of_element_located((By.XPATH, likes_num_xpath)))
+                    WebDriverWait(webdriver, 10).until(EC.visibility_of_element_located((By.XPATH, likes_num_xpath)))
                     likes_num = webdriver.find_element_by_xpath(likes_num_xpath).text
                     likes_num = int(likes_num.replace(',', '')) # strip the comma if there's any
                 except NoSuchElementException:
