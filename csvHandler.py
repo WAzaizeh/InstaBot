@@ -40,7 +40,7 @@ class csvHandler(object):
         current_df = pd.read_csv(csvHandler.DATABASE_PATH, index_col=False)
         users_to_unfollow = []
         for _, row in current_df.iterrows():
-            d = TimeHelper.days_since_date(row.date)
+            d = TimeHelper.days_since_date(row['date'])
             if d >= Constants.DAYS_TO_UNFOLLOW:
                 users_to_unfollow.append(row.username)
         return users_to_unfollow
