@@ -27,7 +27,7 @@ def login(webdriver):
     # Check if login succeeded
     try:
         user_image_xpath = "//a/img[contains(@alt,'profile picture')]"
-        WebDriverWait(webdriver, 10).until(EC.visibility_of_element_located(By.XPATH, user_image_xpath))
+        WebDriverWait(webdriver, 10).until(EC.visibility_of_element_located((By.XPATH, user_image_xpath)))
         print('Login complete')
     except NoSuchElementException:
         print('Login failed...')
@@ -36,7 +36,7 @@ def login(webdriver):
     sleep(3)
     try:
         notnow_css = 'body > div.RnEpo.Yx5HN > div > div > div.mt3GC > button.aOOlW.HoLwm'
-        WebDriverWait(webdriver, 10).until(EC.visibility_of_element_located(By.CSS_SELECTOR, notnow_css))
+        WebDriverWait(webdriver, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, notnow_css)))
         notnow = webdriver.find_element_by_css_selector(notnow_css)
         notnow.click()
     except NoSuchElementException:
@@ -57,19 +57,20 @@ def unfollow_people(webdriver, people):
         unfollow_check_xpath = '//span[contains(@aria-label, "Following")]'
         unfollow_confirm_css = 'body > div.RnEpo.Yx5HN > div > div > div.mt3GC > button.aOOlW.-Cab_'
 
-        # to optimize page opening need an xpath that isn't dependent on follow status
+        # follow only if the Follow button exists
         try:
-            WebDriverWait(webdriver, 10).until(EC.visibility_of_element_located(By.XPATH, unfollow_check_xpath))
+            WebDriverWait(webdriver, 10).until(EC.visibility_of_element_located((By.XPATH, unfollow_check_xpath)))
             sleep(random.randint(1, 7))
             webdriver.find_element_by_xpath(unfollow_check_xpath+'/../..').click()
             sleep(2)
-            WebDriverWait(webdriver, 7).until(EC.visibility_of_element_located(By.XPATH, unfollow_confirm_css))
+            WebDriverWait(webdriver, 7).until(EC.visibility_of_element_located((By.XPATH, unfollow_confirm_css)))
             webdriver.find_element_by_css_selector(unfollow_confirm_css).click()
             removed += 1
             csvHandler.delete_user(user)
             sleep(random.randint(1, 4))
-        print('[{0}/{1}] Users removed'.format(removed, len(people)))
-
+            print('[{0}/{1}] Users removed'.format(removed, len(people)))
+        except NoSuchElementException:
+            continue
 
 def follow_people(webdriver):
     # get and store all the followed user
@@ -108,7 +109,7 @@ def follow_people(webdriver):
                 like_button_xpath = '//*/span[@class="fr66n"]/button[@type="button"]'
                 likes_num_xpath = '//*/div[@class="Nm9Fw"]/button[@type="button"]/span'
                 try:
-                    WebDriverWait(webdriver, 4).until(EC.visibility_of_element_located(By.XPATH, likes_num_xpath))
+                    WebDriverWait(webdriver, 4).until(EC.visibility_of_element_located((By.XPATH, likes_num_xpath)))
                     likes_num = webdriver.find_element_by_xpath(likes_num_xpath).text
                     likes_num = int(likes_num.replace(',', '')) # strip the comma if there's any
                 except NoSuchElementException:
@@ -122,7 +123,7 @@ def follow_people(webdriver):
                     # confirm that the Follow button is visible before clicking
                     follow_button_xapth = "//button[contains(text(), 'Follow')]"
                     try:
-                        WebDriverWait(webdriver, 10).until(EC.visibility_of_element_located(By.XPATH, follow_button_xapth))
+                        WebDriverWait(webdriver, 10).until(EC.visibility_of_element_located((By.XPATH, follow_button_xapth)))
                         webdriver.find_element_by_xpath(follow_button_xapth).click()
                         csvHandler.add_user(username)
                         followed += 1

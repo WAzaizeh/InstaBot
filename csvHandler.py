@@ -1,9 +1,8 @@
-import os.path
+import os, os.path
 import csv
-import Constants
-import fileinput
-import sys
-import TimeHelper
+import Constants, TimeHelper
+import pandas as pd
+import datetime as dt
 
 class csvHandler(object):
     Constants.init()
@@ -15,47 +14,39 @@ class csvHandler(object):
             csvHandler.DATABASE_PATH = os.getcwd() + '/' + Constants.DATABASE_NAME + '.csv'
             try:
                 if not os.path.isfile(csvHandler.DATABASE_PATH):
-                    headers = ['Username', 'Date']
+                    headers = ['username', 'date']
                     with open(csvHandler.DATABASE_PATH, 'a+') as f:
                         writer = csv.writer(f)
                         writer.writerow(headers)
             except OSError: # to handle error when file exists and cannot be accessed
                 pass
 
-
     # add new user
-    def add_user(username, current_date):
-        with open(csvHandler.DATABASE_PATH, 'a') as f:
-            writer = csv.writer(f)
-            writer.writerow([username, current_date])
+    def add_user(username):
+        current_df = pd.read_csv(csvHandler.DATABASE_PATH, index_col=False)
+        date = dt.datetime.now().date()
+        new_row = [username, date]
+        current_df.loc[len(current_df)] = row
+        current_df.to_csv(csvHandler.DATABASE_PATH, index_col=False)
 
     # delete user by username
     def delete_user(username):
-        with open(csvHandler.DATABASE_PATH, "r") as f:
-            data = list(csv.reader(f))
-
-        with open(csvHandler.DATABASE_PATH, "w") as f:
-            writer = csv.writer(f)
-            for row in data:
-                if row[0] != username:
-                    writer.writerow(row)
+        current_df = pd.read_csv(csvHandler.DATABASE_PATH, index_col=False)
+        current_df = current_df[current_df.username != username]
+        current_df.to_csv(csvHandler.DATABASE_PATH, index_col=False)
 
     # check if any user qualifies to be unfollowed
     def check_unfollow_list(self):
-        with open(self.DATABASE_PATH, "r") as f:
-            data = list(csv.reader(f))
+        current_df = pd.read_csv(csvHandler.DATABASE_PATH, index_col=False)
         users_to_unfollow = []
-        for row in data[1:]: # skip headers
-            d = TimeHelper.days_since_date(row[1])
+        for _, row in current_df.iterrows():
+            d = TimeHelper.days_since_date(row.date)
             if d >= Constants.DAYS_TO_UNFOLLOW:
-                users_to_unfollow.append(row[0])
+                users_to_unfollow.append(row.username)
         return users_to_unfollow
 
     # get all followed users
     def get_followed_users(self):
-        users = []
-        with open(self.DATABASE_PATH, "r") as f:
-            data = list(csv.reader(f))
-        for row in data[1:]:
-            users.append(row[0])
+        current_df = pd.read_csv(csvHandler.DATABASE_PATH, index_col=False)
+        users = list(current_df.username)
         return users
