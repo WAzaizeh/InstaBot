@@ -48,5 +48,7 @@ class csvHandler(object):
     # get all followed users
     def get_followed_users(self):
         current_df = pd.read_csv(csvHandler.DATABASE_PATH, index_col=False)
-        users = list(current_df['username'])
+        users=[]
+        if current_df.shape[0] > 0
+            users = list(current_df['username'])
         return users
