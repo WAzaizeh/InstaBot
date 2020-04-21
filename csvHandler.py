@@ -26,7 +26,7 @@ class csvHandler(object):
         current_df = pd.read_csv(csvHandler.DATABASE_PATH, index_col=False)
         date = dt.datetime.now().date()
         new_row = [username, date]
-        current_df.loc[len(current_df)] = new_row
+        current_df = current_df.append(new_row)
         current_df.to_csv(csvHandler.DATABASE_PATH)
 
     # delete user by username
