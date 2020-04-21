@@ -27,13 +27,13 @@ class csvHandler(object):
         date = dt.datetime.now().date()
         new_row = [username, date]
         current_df = current_df.append(new_row)
-        current_df.to_csv(csvHandler.DATABASE_PATH)
+        current_df.to_csv(csvHandler.DATABASE_PATH, index=False)
 
     # delete user by username
     def delete_user(username):
         current_df = pd.read_csv(csvHandler.DATABASE_PATH, index_col=False)
         current_df = current_df[current_df.username != username]
-        current_df.to_csv(csvHandler.DATABASE_PATH)
+        current_df.to_csv(csvHandler.DATABASE_PATH, index=False)
 
     # check if any user qualifies to be unfollowed
     def check_unfollow_list(self):
@@ -41,7 +41,7 @@ class csvHandler(object):
         current_df = pd.read_csv(csvHandler.DATABASE_PATH, index_col=False)
         users_to_unfollow = []
         for _, row in current_df.iterrows():
-            d = TimeHelper.days_since_date(row.iloc[:, 1])
+            d = TimeHelper.days_since_date(row['date'])
             if d >= Constants.DAYS_TO_UNFOLLOW:
                 users_to_unfollow.append(row.username)
         return users_to_unfollow
