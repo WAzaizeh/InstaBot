@@ -37,6 +37,7 @@ class csvHandler(object):
 
     # check if any user qualifies to be unfollowed
     def check_unfollow_list(self):
+        print(csvHandler.DATABASE_PATH)
         current_df = pd.read_csv(csvHandler.DATABASE_PATH, index_col=False)
         users_to_unfollow = []
         for _, row in current_df.iterrows():
@@ -47,6 +48,7 @@ class csvHandler(object):
 
     # get all followed users
     def get_followed_users(self):
+        print(csvHandler.DATABASE_PATH)
         current_df = pd.read_csv(csvHandler.DATABASE_PATH, index_col=False)
         users=[]
         if current_df.shape[0] > 0:
