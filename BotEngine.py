@@ -19,11 +19,14 @@ def get_webdriver(developer_mode=False):
     webdriver = Webdriver.Chrome(executable_path=chromedriver_path, chrome_options=opts)
     return webdriver
 
+def close_driver(webdriver):
+    webdriver.close()
+
 def update(follow=True, developer_mode=False):
-    p1 = Process(target = _check_follow_list)
+    p1 = Process(target = _check_follow_list, args = ((developer_mode,)))
     p1.start()
     if follow:
-        p2 = Process(target = _follow_new_users)
+        p2 = Process(target = _follow_new_users, args = ((developer_mode,)))
         p2.start()
 
     p1.join()
@@ -31,19 +34,22 @@ def update(follow=True, developer_mode=False):
         p2.join()
 
 
-def _check_follow_list():
+def _check_follow_list(developer_mode):
     print('Checking for users to unfollow..')
     # get the lists of users to unfollow
     db = csvHandler()
+    db.__init__()
     users = db.check_unfollow_list()
     #if there's anyone in the list, start unfollowing operation
     if len(users) > 0:
         print('Unfollowing [{}] users...'.format(len(users)))
-        webdriver = get_webdriver()
+        webdriver = get_webdriver(developer_mode=developer_mode)
         AccountAgent.login(webdriver)
         AccountAgent.unfollow_people(webdriver, users)
+        close_driver(webdriver)
 
-def _follow_new_users():
-    webdriver = get_webdriver()
+def _follow_new_users(developer_mode):
+    webdriver = get_webdriver(developer_mode=developer_mode)
     AccountAgent.login(webdriver)
     AccountAgent.follow_people(webdriver)
+    close_driver(webdriver)

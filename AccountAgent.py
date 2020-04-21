@@ -9,6 +9,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import TimeoutException
+
 
 def login(webdriver):
     # Open the instagram login page
@@ -30,8 +32,11 @@ def login(webdriver):
         WebDriverWait(webdriver, 10).until(EC.visibility_of_element_located((By.XPATH, user_image_xpath)))
         print('Login complete')
     except NoSuchElementException:
-        print('Login failed...')
-        return
+        print('NoSuchElementException \nLogin failed...')
+        webdriver.close()
+    except TimeoutException as ex:
+        print('TimeoutException \nLogin failed...')
+        webdriver.close()
     #In case you get a popup after logging in, press not now
     sleep(3)
     try:
@@ -75,6 +80,7 @@ def unfollow_people(webdriver, people):
 def follow_people(webdriver):
     # get and store all the followed user
     db = csvHandler()
+    db.__init__()
     prev_user_list = db.get_followed_users()
     new_followed = []
 
