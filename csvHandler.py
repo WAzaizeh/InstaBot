@@ -11,7 +11,7 @@ class csvHandler(object):
     DATABASE_NAME = Constants.DATABASE_NAME
 
     def __init__(self):
-        if csvHandler.DATABASE_PATH == '': #if no path is specified, save in the same file
+        if csvHandler.DATABASE_PATH == '': # if no path is specified, save in the same file
             csvHandler.DATABASE_PATH = os.getcwd() + '/' + Constants.DATABASE_NAME + '.csv'
             try:
                 if not os.path.isfile(csvHandler.DATABASE_PATH):
@@ -19,17 +19,17 @@ class csvHandler(object):
                     with open(csvHandler.DATABASE_PATH, 'a+') as f:
                         writer = csv.writer(f)
                         writer.writerow(headers)
-            except OSError: #to handle error when file exists and cannot be accessed
+            except OSError: # to handle error when file exists and cannot be accessed
                 pass
 
 
-    #add new user
+    # add new user
     def add_user(username, current_date):
         with open(csvHandler.DATABASE_PATH, 'a') as f:
             writer = csv.writer(f)
             writer.writerow([username, current_date])
 
-    #delete user by username
+    # delete user by username
     def delete_user(username):
         with open(csvHandler.DATABASE_PATH, "r") as f:
             data = list(csv.reader(f))
@@ -40,18 +40,18 @@ class csvHandler(object):
                 if row[0] != username:
                     writer.writerow(row)
 
-    #check if any user qualifies to be unfollowed
+    # check if any user qualifies to be unfollowed
     def check_unfollow_list(self):
         with open(self.DATABASE_PATH, "r") as f:
             data = list(csv.reader(f))
         users_to_unfollow = []
-        for row in data[1:]: #skip headers
+        for row in data[1:]: # skip headers
             d = TimeHelper.days_since_date(row[1])
             if d >= Constants.DAYS_TO_UNFOLLOW:
                 users_to_unfollow.append(row[0])
         return users_to_unfollow
 
-    #get all followed users
+    # get all followed users
     def get_followed_users(self):
         users = []
         with open(self.DATABASE_PATH, "r") as f:

@@ -6,7 +6,7 @@ def days_since_date(n):
     diff = dt.datetime.now().date() - n
     return diff.days
 
-def minutes_since_start(start):
+def minutes_since(start):
     end = dt.datetime.now()
     elapsed = end - start
     return elapsed.total_seconds() / 60.0

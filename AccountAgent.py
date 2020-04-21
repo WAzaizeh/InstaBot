@@ -1,5 +1,5 @@
 from time import sleep
-import datetime
+import datetime as dt
 import UsersHandler, Constants
 import traceback
 import random
@@ -21,20 +21,29 @@ def login(webdriver):
     username.send_keys(Constants.INST_USER)
     password = webdriver.find_element_by_name('password')
     password.send_keys(Constants.INST_PASS)
+    # Sleep for 2 seconds to prevent issues with server
+    sleep(2)
     password.send_keys(Keys.RETURN)
-    print('Login complete')
-    sleep(3)
-    #In case you get a popup after logging in, press not now.
-    #If not, then just return
+    # Check if login succeeded
     try:
-        notnow = webdriver.find_element_by_css_selector(
-            'body > div.RnEpo.Yx5HN > div > div > div.mt3GC > button.aOOlW.HoLwm')
+        user_image_xpath = "//a/img[contains(@alt,'profile picture')]"
+        WebDriverWait(webdriver, 10).until(EC.visibility_of_element_located(By.XPATH, user_image_xpath))
+        print('Login complete')
+    except NoSuchElementException:
+        print('Login failed...')
+        return
+    #In case you get a popup after logging in, press not now
+    sleep(3)
+    try:
+        notnow_css = 'body > div.RnEpo.Yx5HN > div > div > div.mt3GC > button.aOOlW.HoLwm'
+        WebDriverWait(webdriver, 10).until(EC.visibility_of_element_located(By.CSS_SELECTOR, notnow_css))
+        notnow = webdriver.find_element_by_css_selector(notnow_css)
         notnow.click()
-    except:
+    except NoSuchElementException:
         return
 
 def unfollow_people(webdriver, people):
-    #if only one user, append in a list
+    # if only one user, append in a list
     if not isinstance(people, (list,)):
         p = people
         people = []
@@ -42,29 +51,24 @@ def unfollow_people(webdriver, people):
 
     removed = 0
     for i,user in enumerate(people):
+        webdriver.get('https://www.instagram.com/' + user + '/')
+        # sleep for 3 seconds to prevent issues with the server
+        sleep(3)
+        unfollow_check_xpath = '//span[contains(@aria-label, "Following")]'
+        unfollow_confirm_css = 'body > div.RnEpo.Yx5HN > div > div > div.mt3GC > button.aOOlW.-Cab_'
+
+        # to optimize page opening need an xpath that isn't dependent on follow status
         try:
-            webdriver.get('https://www.instagram.com/' + user + '/')
-            sleep(5)
-            unfollow_xpath = '//*[@id="react-root"]/section/main/div/header/section/div[1]/div[1]/span/span[1]/button'
-            unfollow_confirm_css = 'body > div.RnEpo.Yx5HN > div > div > div.mt3GC > button.aOOlW.-Cab_'
-
-            # to optimize page opening need an xpath that isn't dependent on follow status
-            if webdriver.find_element_by_xpath(unfollow_xpath).text == "Following":
-                sleep(random.randint(1, 7))
-                webdriver.find_element_by_xpath(unfollow_xpath).click()
-                sleep(2)
-                if webdriver.find_element_by_css_selector(unfollow_confirm_css).text == "Unfollow":
-                    webdriver.find_element_by_css_selector(unfollow_confirm_css).click()
-                    removed += 1
-                else:
-                    print("Couldn't Unfollow {}".format(user))
-                    UsersHandler.delete_user(user)
-                sleep(4)
-            print('[{0}/{1}] Users removed'.format(removed, len(people)))
-
-        except Exception:
-            traceback.print_exc()
-            continue
+            WebDriverWait(webdriver, 10).until(EC.visibility_of_element_located(By.XPATH, unfollow_check_xpath))
+            sleep(random.randint(1, 7))
+            webdriver.find_element_by_xpath(unfollow_check_xpath+'/../..').click()
+            sleep(2)
+            WebDriverWait(webdriver, 7).until(EC.visibility_of_element_located(By.XPATH, unfollow_confirm_css))
+            webdriver.find_element_by_css_selector(unfollow_confirm_css).click()
+            removed += 1
+            csvHandler.delete_user(user)
+            sleep(random.randint(1, 4))
+        print('[{0}/{1}] Users removed'.format(removed, len(people)))
 
 
 def follow_people(webdriver):
@@ -84,17 +88,16 @@ def follow_people(webdriver):
         sleep(5) # replace with DriverWait
 
         # start from the 1st most recent post
-        print('Starting to follow and like under #{0}....'.format(hashtag))
-        most_recent_xpath = '//*[@id="react-root"]/section/main/article/div[2]/div/div[1]/div[1]/a/div[1]'
-        WebDriverWait(webdriver, 10).until(EC.visibility_of_element_located((By.XAPTH, most_recent_xpath)))
+        print('Starting to follow & like new users under #{}....'.format(hashtag))
+        most_recent_xpath = '//article/div[2]/div/div[1]/div[1]/a/div[1]'
+        WebDriverWait(webdriver, 10).until(EC.visibility_of_element_located((By.XPATH, most_recent_xpath)))
         most_recent = webdriver.find_element_by_xpath(most_recent_xpath)
         most_recent.click()
         sleep(random.randint(1,3))
-
         try:
             # iterate over the most recent hashtags for the next 10 minutes
-            timer_start = datetime.datetime.now()
-            while ((datetime.datetime.now() - timer_start).total_seconds() / 60.0) < Constants.CHECK_FOLLOWERS_EVERY:
+            start = dt.datetime.now()
+            while TimeHelper.minutes_since(start) < Constants.CHECK_FOLLOWERS_EVERY:
                 # get the poster's username
                 username_xpath = '/html/body/div[4]/div[2]/div/article/header/div[2]/div[1]/div[1]/a'
                 username = webdriver.find_element_by_xpath(username_xpath).text
@@ -104,8 +107,8 @@ def follow_people(webdriver):
                 likes_over_limit = False
                 like_button_xpath = '//*/span[@class="fr66n"]/button[@type="button"]'
                 likes_num_xpath = '//*/div[@class="Nm9Fw"]/button[@type="button"]/span'
-                sleep(0.2)
                 try:
+                    WebDriverWait(webdriver, 4).until(EC.visibility_of_element_located(By.XPATH, likes_num_xpath))
                     likes_num = webdriver.find_element_by_xpath(likes_num_xpath).text
                     likes_num = int(likes_num.replace(',', '')) # strip the comma if there's any
                 except NoSuchElementException:
@@ -116,29 +119,29 @@ def follow_people(webdriver):
 
                 # if username isn't stored in the database and the likes are in the acceptable range
                 if username not in prev_user_list and not likes_over_limit:
-                    #Don't press the button if the text doesn't say follow
-                    if webdriver.find_element_by_xpath('/html/body/div[4]/div[2]/div/article/header/div[2]/div[1]/div[2]/button').text == 'Follow':
-                        #Use UsersHandler to add the new user to the database
-                        UsersHandler.add_user(username)
-                        #Click follow
-                        webdriver.find_element_by_xpath('/html/body/div[4]/div[2]/div/article/header/div[2]/div[1]/div[2]/button').click()
+                    # confirm that the Follow button is visible before clicking
+                    follow_button_xapth = "//button[contains(text(), 'Follow')]"
+                    try:
+                        WebDriverWait(webdriver, 10).until(EC.visibility_of_element_located(By.XPATH, follow_button_xapth))
+                        webdriver.find_element_by_xpath(follow_button_xapth).click()
+                        csvHandler.add_user(username)
                         followed += 1
                         print("Followed: {0}, #{1}".format(username, followed))
                         new_followed.append(username)
+                    except NoSuchElementException:
+                        continue
 
-
-                        # Liking the picture
-                        button_like = webdriver.find_element_by_xpath(like_button_xpath)
-                        button_like.click()
-                        likes += 1
-                        print("Liked {0}'s post, #{1}".format(username, likes))
-                        sleep(random.randint(5, 18))
+                # Liking the picture
+                button_like = webdriver.find_element_by_xpath(like_button_xpath)
+                button_like.click()
+                likes += 1
+                print("Liked {0}'s post, #{1}".format(username, likes))
+                sleep(random.randint(5, 18))
 
 
                 # Next picture
                 webdriver.find_element_by_link_text('Next').click()
-                sleep(random.randint(10, 30))
-
+                sleep(random.randint(5, 10))
         except:
             traceback.print_exc()
             continue

@@ -1,3 +1,4 @@
+import os
 import json
 INST_USER= INST_PASS= DATABASE_PATH= DATABASE_NAME= CHROME_DRIVER_PATH= POST_COMMENTS= ''
 LIKES_LIMIT= DAYS_TO_UNFOLLOW= CHECK_FOLLOWERS_EVERY= 0
@@ -8,7 +9,7 @@ def init():
         LIKES_LIMIT, DAYS_TO_UNFOLLOW, CHECK_FOLLOWERS_EVERY, HASHTAGS
     # read file
     data = None
-    with open('/Users/wesamazaizeh/Desktop/Projects/InstaBot/py-insta-bot-with-unfollows-master/settings.json', 'r') as myfile:
+    with open(os.getcwd()+'/settings.json', 'r') as myfile:
         data = myfile.read()
     obj = json.loads(data)
     INST_USER = obj['instagram']['user']
