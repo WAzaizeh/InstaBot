@@ -5,13 +5,13 @@
     "chrome_driver_path": "/Users/wesamazaizeh/Desktop/Projects/chrome_driver/chromedriver"
   },
   "instagram": {
-    "user": "",
-    "pass": ""
+    "user": "Mosabjijene",
+    "pass": "08165035Mosab"
   },
   "config": {
-    "days_to_unfollow": 3,
+    "days_to_unfollow": 0,
     "likes_over": 150,
-    "check_followers_every": 10,
+    "check_followers_every": 1,
     "hashtags": ["photography", "Lightroom", "DepthOfField", "Aperature"]
   }
 }

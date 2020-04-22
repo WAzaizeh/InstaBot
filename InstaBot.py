@@ -2,4 +2,4 @@ import BotEngine
 
 
 BotEngine.init()
-BotEngine.update(follow=True ,developer_mode=False)
+BotEngine.update(follow=False ,developer_mode=True)
