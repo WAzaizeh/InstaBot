@@ -1,8 +1,13 @@
 certifi==2020.4.5.1
 numpy==1.18.3
 pandas==1.0.3
+prompt-toolkit==1.0.14
+Pygments==2.6.1
+PyInquirer==1.0.3
 python-dateutil==2.8.1
 pytz==2019.3
+regex==2020.4.4
 selenium==3.141.0
 six==1.14.0
 urllib3==1.25.8
+wcwidth==0.1.9
