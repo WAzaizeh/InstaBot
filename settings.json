@@ -1,18 +1,23 @@
 {
-  "paths": {
-    "db_path": "",
-    "chrome_driver_path": ""
-  },
-  "instagram": {
-    "user": "",
-    "pass": ""
-  },
-  "config": {
-    "run_mode": 0,
-    "days_to_unfollow": 3,
-    "likes_over": 150,
-    "check_followers_every": 10,
-    "run_dauration": 40,
-    "hashtags": ["photography", "Lightroom", "DepthOfField", "Aperature"]
-  }
+ "paths":{
+  "db_path":"",
+  "chrome_driver_path":"/Users/wesamazaizeh/Desktop/Projects/chrome_driver/chromedriver"
+ },
+ "instagram":{
+  "user":"absee",
+  "pass":"asbe"
+ },
+ "config":{
+  "run_mode":0,
+  "days_to_unfollow":0,
+  "likes_over":150,
+  "check_followers_every":1,
+  "run_dauration":0,
+  "hashtags":[
+   "photography",
+   "Lightroom",
+   "DepthOfField",
+   "Aperature"
+  ]
+ }
 }
