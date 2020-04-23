@@ -6,10 +6,6 @@ from csvHandler import csvHandler
 import datetime
 from multiprocessing import Process
 
-def init():
-    # initialize Constants to get the values from "settings.json"
-    Constants.init()
-
 def get_webdriver(developer_mode=False):
     chromedriver_path = Constants.CHROME_DRIVER_PATH
     opts = ChromeOptions()

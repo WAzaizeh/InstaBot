@@ -6,6 +6,26 @@ from __future__ import print_function, unicode_literals
 from PyInquirer import style_from_dict, Token, prompt, Validator, ValidationError
 import os
 import string
+import Constants
+
+# variables that can be modified by command line interface
+INST_USER= INST_PASS= CHROME_DRIVER_PATH= ''
+LIKES_LIMIT= DAYS_TO_UNFOLLOW= CHECK_FOLLOWERS_EVERY= 0
+HASHTAGS = []
+
+# load values already saved in settings.json
+Constants.init()
+
+
+class FirstTimeUserValidator(Validator):
+    def validate(self, value):
+        if not len(value.text) and Constants.INST_USER == '':
+            raise ValidationError(
+                message="No account info is saved on file. \nPlease enter account info!",
+                cursor_position=len(value.text)
+            )
+        else:
+            return True
 
 
 class FilePathValidator(Validator):
@@ -61,7 +81,18 @@ class HashtagValidator(Validator):
 
 def main():
     print('Welcome to InstaBot')
-    settup_account()
+    # first time user
+    if not Constants.INST_USER:
+        Constants.INST_USER, Constants.INST_PASS = get_username_pass()
+        get_chrome_driver_path()
+    # some username is already saved
+    else:
+        answer = settup_account()
+        if answer == 'Yes':
+            Constants.INST_USER, Constants.INST_PASS = get_username_pass()
+            get_chrome_driver_path()
+    change_settings()
+    # Constants.update_settings_file()
 
 
 def settup_account():
@@ -70,16 +101,10 @@ def settup_account():
         'name': 'new_user',
         'message': 'Are you a new user?',
         'choices': ['Yes', 'No'],
-        'default': 2
+        'validate': FirstTimeUserValidator
     }
     answer = prompt(new_user_q)
-    print(answer['new_user'])
-    if (answer['new_user'] == 'Yes'):
-        get_username_pass()
-        get_chrome_driver_path()
-        change_settings()
-    else:
-        change_settings()
+    return answer['new_user']
 
 
 def get_username_pass():
@@ -97,6 +122,7 @@ def get_username_pass():
         'validate': EmptyValidator
     }
     password = prompt(password_q)
+    return username['username'], password['password']
 
 
 def get_chrome_driver_path():

@@ -1,7 +1,6 @@
 {
   "paths": {
-    "filepath": "",
-    "name": "mosaab_instabot",
+    "db_path": "",
     "chrome_driver_path": "/Users/wesamazaizeh/Desktop/Projects/chrome_driver/chromedriver"
   },
   "instagram": {
@@ -12,6 +11,7 @@
     "days_to_unfollow": 0,
     "likes_over": 150,
     "check_followers_every": 1,
+    "run_dauration": 60,
     "hashtags": ["photography", "Lightroom", "DepthOfField", "Aperature"]
   }
 }
