@@ -16,6 +16,7 @@ def init():
     INST_PASS = obj['instagram']['pass']
     DATABASE_PATH = obj['paths']['db_path']
     CHROME_DRIVER_PATH = obj['paths']['chrome_driver_path']
+    RUN_MODE = obj['config']['run_mode']
     LIKES_LIMIT = obj['config']['likes_over']
     CHECK_FOLLOWERS_EVERY= obj['config']['check_followers_every']
     RUN_DURATION = obj['config']['run_dauration']
