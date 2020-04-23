@@ -18,18 +18,19 @@ class FilePathValidator(Validator):
                     cursor_position=len(value.text))
         else:
             raise ValidationError(
-                message="You can't leave this blank",
+                message="Please enter a proper file path",
                 cursor_position=len(value.text))
 
 
 class NumberValidator(Validator):
-    def validate(self, document):
+    def validate(self, value):
         try:
-            int(document.text)
+            int(value.text)
         except ValueError:
             raise ValidationError(
                 message='Please enter a number',
-                cursor_position=len(document.text))
+                cursor_position=len(value.text))
+
 
 class EmptyValidator(Validator):
     def validate(self, value):
@@ -37,8 +38,29 @@ class EmptyValidator(Validator):
             return True
         else:
             raise ValidationError(
-                message="You can't leave this blank",
+                message="Please enter a vlaue",
                 cursor_position=len(value.text))
+
+
+class HashtagListValidator(Validator):
+    def validate(self, value):
+        hashtag_list = (value.text).replace(' ', '')
+        by_comma_num = len(hashtag_list.split(','))
+        by_whitespace_num = len(value.text.split())
+        if len(hashtag_list):
+            if '#' not in hashtag_list:
+                if by_comma_num == by_whitespace_num:
+                    return True
+                else:
+                    raise ValidationError(
+                        message="Use commas to seperate hashtags",
+                        cursor_position=len(value.text))
+            else:
+                raise ValidationError(
+                    message="Don't include #",
+                    cursor_position=len(value.text))
+        else:
+            print('Please enter a list of hashtags')
 
 
 def main():
@@ -67,35 +89,37 @@ def get_username_pass():
     user_q = {
         'type': 'input',
         'name': 'username',
-        'message': 'Enter your Instagram account username:'
+        'message': 'Enter your Instagram account username:',
+        'validate': EmptyValidator
     }
     username = prompt(user_q)
     password_q = {
         'type': 'password',
         'name': 'password',
-        'message': 'Enter your Instagram account password:'
+        'message': 'Enter your Instagram account password:',
+        'validate': EmptyValidator
     }
     password = prompt(password_q)
 
 
 def get_chrome_driver_path():
-    chromedriver_path_question = {
+    chromedriver_path_q = {
         'type': 'input',
         'name': 'exe_path',
         'message': 'Enter the full path to your Chrome Driver:',
         'validate': FilePathValidator
     }
-    chromedriver_path = prompt(chromedriver_path_question)
+    chromedriver_path = prompt(chromedriver_path_q)
 
 
 def change_settings():
-    change_question = {
+    change_q = {
         'type': 'list',
         'name': 'change_settings',
         'message': 'Would you like to change the default settings?',
         'choices': ['Yes', 'No']
     }
-    answer = prompt(change_question)
+    answer = prompt(change_q)
     if answer['change_settings'] == 'Yes':
         get_settings()
     else:
@@ -103,7 +127,7 @@ def change_settings():
 
 
 def get_settings():
-    settings_questions = [{
+    settings_q = [{
         'type': 'list',
         'name': 'follow_status',
         'message': 'Which functions would you like to run?',
@@ -131,9 +155,10 @@ def get_settings():
     {
         'type': 'input',
         'name': 'hashtags_list',
-        'message': 'List of hashtags to follow:',
-        'validate': EmptyValidator
+        'message': 'List of hashtags seperated by commas(,) and without the (#):',
+        'validate': HashtagListValidator
     }]
+    prompt(settings_q)
 
 
 
