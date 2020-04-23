@@ -8,6 +8,7 @@
     "pass": "08165035Mosab"
   },
   "config": {
+    "run_mode": 0,
     "days_to_unfollow": 0,
     "likes_over": 150,
     "check_followers_every": 1,
