@@ -89,77 +89,80 @@ def follow_people(webdriver):
     prev_user_list = db.get_followed_users()
     new_followed = []
 
-    #counters
+    # counters
     followed = 0
     likes = 0
 
-    # iterate theough all the hashtags from the constants
-    for hashtag in Constants.HASHTAGS:
-        # visit the hashtag
-        webdriver.get('https://www.instagram.com/explore/tags/' + hashtag+ '/')
-        sleep(5) # to prevent issues with the server
+    # run for the specified duration
+    run_timer_start = dt.datetime.now()
+    while TimeHelper.minutes_since(run_timer_start) < Constants.RUN_DURATION:
+        # iterate theough all the hashtags from the constants
+        for hashtag in Constants.HASHTAGS:
+            # visit the hashtag
+            webdriver.get('https://www.instagram.com/explore/tags/' + hashtag+ '/')
+            sleep(5) # to prevent issues with the server
 
-        # start from the 1st most recent post
-        start = dt.datetime.now()
-        print('Starting to follow & like new users under #{}....'.format(hashtag))
-        most_recent_xpath = '//article/div[2]/div/div[1]/div[1]/a/div[1]'
-        WebDriverWait(webdriver, 10).until(EC.visibility_of_element_located((By.XPATH, most_recent_xpath)))
-        most_recent = webdriver.find_element_by_xpath(most_recent_xpath)
-        most_recent.click()
-        sleep(random.randint(1,3))
+            # start from the 1st most recent post
+            start = dt.datetime.now()
+            print('Starting to follow & like new users under #{}....'.format(hashtag))
+            most_recent_xpath = '//article/div[2]/div/div[1]/div[1]/a/div[1]'
+            WebDriverWait(webdriver, 10).until(EC.visibility_of_element_located((By.XPATH, most_recent_xpath)))
+            most_recent = webdriver.find_element_by_xpath(most_recent_xpath)
+            most_recent.click()
+            sleep(random.randint(1,3))
 
-        # iterate over the most recent hashtags for the next 10 minutes
-        while TimeHelper.minutes_since(start) < Constants.CHECK_FOLLOWERS_EVERY:
-            print(TimeHelper.minutes_since(start))
-            # get the poster's username
-            username_xpath = '/html/body/div[4]/div[2]/div/article/header/div[2]/div[1]/div[1]/a'
-            username = webdriver.find_element_by_xpath(username_xpath).text
-            print("Detected: {0}".format(username))
+            # iterate over the most recent hashtags for the next 10 minutes
+            while TimeHelper.minutes_since(start) < Constants.CHECK_FOLLOWERS_EVERY:
+                print(TimeHelper.minutes_since(start))
+                # get the poster's username
+                username_xpath = '/html/body/div[4]/div[2]/div/article/header/div[2]/div[1]/div[1]/a'
+                username = webdriver.find_element_by_xpath(username_xpath).text
+                print("Detected: {0}".format(username))
 
-            # get number of likes and compare it to the maximum number of likes to ignore post
-            likes_over_limit = False
-            like_button_xpath = '//*/span[@class="fr66n"]/button[@type="button"]'
-            likes_num_xpath = '//*/div[@class="Nm9Fw"]/button[@type="button"]/span'
-            try:
-                WebDriverWait(webdriver, 10).until(EC.visibility_of_element_located((By.XPATH, likes_num_xpath)))
-                likes_num = webdriver.find_element_by_xpath(likes_num_xpath).text
-                likes_num = int(likes_num.replace(',', '')) # strip the comma if there's any
-            except TimeoutException:
-                likes_num = 0 # if the post has no likes
-            if likes_num > Constants.LIKES_LIMIT:
-                print("likes over {0}".format(Constants.LIKES_LIMIT))
-                likes_over_limit = True
-
-            # if username isn't stored in the database and the likes are in the acceptable range
-            if username not in prev_user_list and not likes_over_limit:
-                # confirm that the Follow button is visible before clicking
-                follow_button_xapth = "//div[@class='bY2yH']/button[contains(text(), 'Follow')]"
+                # get number of likes and compare it to the maximum number of likes to ignore post
+                likes_over_limit = False
+                like_button_xpath = '//*/span[@class="fr66n"]/button[@type="button"]'
+                likes_num_xpath = '//*/div[@class="Nm9Fw"]/button[@type="button"]/span'
                 try:
-                    WebDriverWait(webdriver, 10).until(EC.visibility_of_element_located((By.XPATH, follow_button_xapth)))
-                    webdriver.find_element_by_xpath(follow_button_xapth).click()
-                    csvHandler.add_user(username)
-                    followed += 1
-                    print("Followed: {0}, #{1}".format(username, followed))
-                    new_followed.append(username)
+                    WebDriverWait(webdriver, 10).until(EC.visibility_of_element_located((By.XPATH, likes_num_xpath)))
+                    likes_num = webdriver.find_element_by_xpath(likes_num_xpath).text
+                    likes_num = int(likes_num.replace(',', '')) # strip the comma if there's any
                 except TimeoutException:
-                    continue
+                    likes_num = 0 # if the post has no likes
+                if likes_num > Constants.LIKES_LIMIT:
+                    print("likes over {0}".format(Constants.LIKES_LIMIT))
+                    likes_over_limit = True
 
-            # Liking the picture
-            button_like = webdriver.find_element_by_xpath(like_button_xpath)
-            button_like.click()
-            likes += 1
-            print("Liked {0}'s post, #{1}".format(username, likes))
-            sleep(random.randint(5, 18))
+                # if username isn't stored in the database and the likes are in the acceptable range
+                if username not in prev_user_list and not likes_over_limit:
+                    # confirm that the Follow button is visible before clicking
+                    follow_button_xapth = "//div[@class='bY2yH']/button[contains(text(), 'Follow')]"
+                    try:
+                        WebDriverWait(webdriver, 10).until(EC.visibility_of_element_located((By.XPATH, follow_button_xapth)))
+                        webdriver.find_element_by_xpath(follow_button_xapth).click()
+                        csvHandler.add_user(username)
+                        followed += 1
+                        print("Followed: {0}, #{1}".format(username, followed))
+                        new_followed.append(username)
+                    except TimeoutException:
+                        continue
+
+                # Liking the picture
+                button_like = webdriver.find_element_by_xpath(like_button_xpath)
+                button_like.click()
+                likes += 1
+                print("Liked {0}'s post, #{1}".format(username, likes))
+                sleep(random.randint(5, 18))
 
 
-            # Next picture
-            webdriver.find_element_by_link_text('Next').click()
-            sleep(random.randint(5, 10))
+                # Next picture
+                webdriver.find_element_by_link_text('Next').click()
+                sleep(random.randint(5, 10))
 
 
-        #add new list to old list
-        for n in range(0, len(new_followed)):
-            prev_user_list.append(new_followed[n])
-        print('For #{}:'.format(hashtag))
-        print('Liked {} photos.'.format(likes))
-        print('Followed {} new people.'.format(followed))
+            #add new list to old list
+            for n in range(0, len(new_followed)):
+                prev_user_list.append(new_followed[n])
+            print('For #{}:'.format(hashtag))
+            print('Liked {} photos.'.format(likes))
+            print('Followed {} new people.'.format(followed))

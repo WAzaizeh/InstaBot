@@ -1,0 +1,18 @@
+{
+  "paths": {
+    "db_path": "",
+    "chrome_driver_path": ""
+  },
+  "instagram": {
+    "user": "",
+    "pass": ""
+  },
+  "config": {
+    "run_mode": 0,
+    "days_to_unfollow": 3,
+    "likes_over": 150,
+    "check_followers_every": 10,
+    "run_dauration": 40,
+    "hashtags": ["photography", "Lightroom", "DepthOfField", "Aperature"]
+  }
+}
