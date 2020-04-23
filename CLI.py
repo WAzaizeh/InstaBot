@@ -83,16 +83,15 @@ def main():
     print('Welcome to InstaBot')
     # first time user
     if not Constants.INST_USER:
-        Constants.INST_USER, Constants.INST_PASS = get_username_pass()
-        get_chrome_driver_path()
+        get_username_pass()
+        # get_chrome_driver_path()
+        Constants.update_settings_file()
     # some username is already saved
     else:
-        answer = settup_account()
-        if answer == 'Yes':
-            Constants.INST_USER, Constants.INST_PASS = get_username_pass()
+        if settup_account() == 'Yes':
+            get_username_pass()
             get_chrome_driver_path()
     change_settings()
-    # Constants.update_settings_file()
 
 
 def settup_account():
@@ -114,25 +113,24 @@ def get_username_pass():
         'message': 'Enter your Instagram account username:',
         'validate': EmptyValidator
     }
-    username = prompt(user_q)
+    Constants.INST_USER = prompt(user_q)['username']
     password_q = {
         'type': 'password',
         'name': 'password',
         'message': 'Enter your Instagram account password:',
         'validate': EmptyValidator
     }
-    password = prompt(password_q)
-    return username['username'], password['password']
+    Constants.INST_PASS = prompt(password_q)['password']
 
 
 def get_chrome_driver_path():
     chromedriver_path_q = {
         'type': 'input',
-        'name': 'exe_path',
+        'name': 'driver_path',
         'message': 'Enter the full path to your Chrome Driver:',
         'validate': FilePathValidator
     }
-    chromedriver_path = prompt(chromedriver_path_q)
+    Constants.CHROME_DRIVER_PATH = prompt(chromedriver_path_q)['driver_path']
 
 
 def change_settings():
@@ -145,6 +143,17 @@ def change_settings():
     answer = prompt(change_q)
     if answer['change_settings'] == 'Yes':
         get_settings()
+
+
+def generate_hashtag_list():
+    hashtag_list_q = {
+        'type': 'input',
+        'name': 'hashtag',
+        'message': 'Enter hashtag without the (#):',
+        'validate': HashtagValidator
+    }
+
+    return prompt(hashtag_list_q)['hashtag']
 
 
 def get_settings():
@@ -195,18 +204,15 @@ def get_settings():
     for i in range(int(answers['hashtag_num'])):
         new_hashtag = generate_hashtag_list()
         hashtag_list.append(new_hashtag)
-    print(hashtag_list)
 
-
-def generate_hashtag_list():
-    hashtag_list_q = {
-        'type': 'input',
-        'name': 'hashtags',
-        'message': 'Enter hashtag without the (#):',
-        'validate': HashtagValidator
-    }
-    hashtag = prompt(hashtag_list_q)
-    return hashtag['hashtags']
+    # assign values
+    Constants.RUN_MODE = 0 if answers['follow_status'] == 'Follow & Unfollow' else 1 if answers['follow_status'] == 'Follow only' else 2
+    Constants.DAYS_TO_UNFOLLOW = int(answers['days_to_unfollow'] )
+    Constants.LIKES_LIMIT = int(answers['likes_max'])
+    Constants.CHECK_FOLLOWERS_EVERY = int(answers['check_followers_every'])
+    Constants.RUN_DURATION = int(answers['run_for'])
+    Constants.HASHTAGS = hashtag_list
+    Constants.update_settings_file()
 
 
 if __name__ == '__main__':

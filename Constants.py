@@ -1,6 +1,6 @@
 import os
 import json
-INST_USER= INST_PASS= DATABASE_PATH= DATABASE_NAME= CHROME_DRIVER_PATH= ''
+INST_USER= INST_PASS= DATABASE_PATH= CHROME_DRIVER_PATH= ''
 RUN_MODE = LIKES_LIMIT= DAYS_TO_UNFOLLOW= CHECK_FOLLOWERS_EVERY= RUN_DURATION = 0
 HASHTAGS = []
 
@@ -25,8 +25,23 @@ def init():
 
 
 def update_settings_file():
-    data = []
-    with open('/settings.json', 'r') as json_file:
-        json.dump(data, json_file)
-    print(INST_USER, INST_PASS)
-    # triggered by CLI to modify some variable based on name of what's send?
+    json_data = {
+      "paths": {
+        "db_path": DATABASE_PATH,
+        "chrome_driver_path": CHROME_DRIVER_PATH
+      },
+      "instagram": {
+        "user": INST_USER,
+        "pass": INST_PASS
+      },
+      "config": {
+        "run_mode": RUN_MODE,
+        "days_to_unfollow": DAYS_TO_UNFOLLOW,
+        "likes_over": LIKES_LIMIT,
+        "check_followers_every": CHECK_FOLLOWERS_EVERY,
+        "run_dauration": RUN_DURATION,
+        "hashtags": HASHTAGS
+      }
+    }
+    with open(os.getcwd()+'/settings.json', 'w+') as json_file:
+        json.dump(json_data, json_file, indent = 1, separators=(',', ':'))
