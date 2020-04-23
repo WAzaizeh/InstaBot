@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-hierarchical prompt usage example
+A personal customized InstaBot
 """
 from __future__ import print_function, unicode_literals
 from PyInquirer import style_from_dict, Token, prompt, Validator, ValidationError
 import os
+import string
 
 
 class FilePathValidator(Validator):
@@ -42,25 +43,20 @@ class EmptyValidator(Validator):
                 cursor_position=len(value.text))
 
 
-class HashtagListValidator(Validator):
+class HashtagValidator(Validator):
     def validate(self, value):
-        hashtag_list = (value.text).replace(' ', '')
-        by_comma_num = len(hashtag_list.split(','))
-        by_whitespace_num = len(value.text.split())
-        if len(hashtag_list):
-            if '#' not in hashtag_list:
-                if by_comma_num == by_whitespace_num:
-                    return True
-                else:
-                    raise ValidationError(
-                        message="Use commas to seperate hashtags",
-                        cursor_position=len(value.text))
-            else:
+        special_character = string.punctuation.replace('_',' ') # underscore is valid but whitespace is not
+        if len(value.text):
+            if any(char in special_character for char in value.text):
                 raise ValidationError(
-                    message="Don't include #",
+                    message="Only letters, numbers, and underscore (_) are valid",
                     cursor_position=len(value.text))
+            else:
+                return True
         else:
-            print('Please enter a list of hashtags')
+            raise ValidationError(
+                message="Enter a valid hashtag name",
+                cursor_position=len(value.text))
 
 
 def main():
@@ -73,7 +69,8 @@ def settup_account():
         'type': 'list',
         'name': 'new_user',
         'message': 'Are you a new user?',
-        'choices': ['Yes', 'No']
+        'choices': ['Yes', 'No'],
+        'default': 2
     }
     answer = prompt(new_user_q)
     print(answer['new_user'])
@@ -122,8 +119,6 @@ def change_settings():
     answer = prompt(change_q)
     if answer['change_settings'] == 'Yes':
         get_settings()
-    else:
-        print('You cannot go that way')
 
 
 def get_settings():
@@ -137,12 +132,14 @@ def get_settings():
         'type': 'input',
         'name': 'days_to_unfollow',
         'message': 'Days to unfollow:',
+        'default': '3',
         'validate': NumberValidator
     },
     {
         'type': 'input',
         'name': 'likes_max',
         'message': 'Max number of likes per post to follow and like:',
+        'default': '150',
         'validate': NumberValidator
 
     },
@@ -150,16 +147,40 @@ def get_settings():
         'type': 'input',
         'name': 'check_followers_every',
         'message': 'Follow & like every (minutes):',
+        'default': '10',
         'validate': NumberValidator
     },
     {
         'type': 'input',
-        'name': 'hashtags_list',
-        'message': 'List of hashtags seperated by commas(,) and without the (#):',
-        'validate': HashtagListValidator
+        'name': 'run_for',
+        'message': 'Run for (minutes):',
+        'default': '60',
+        'validate': NumberValidator
+    },
+    {
+        'type': 'input',
+        'name': 'hashtag_num',
+        'message': 'How many hashtags would you like to follow & like?',
+        'default': '4',
+        'validate': NumberValidator
     }]
-    prompt(settings_q)
+    answers = prompt(settings_q)
+    hashtag_list = []
+    for i in range(int(answers['hashtag_num'])):
+        new_hashtag = generate_hashtag_list()
+        hashtag_list.append(new_hashtag)
+    print(hashtag_list)
 
+
+def generate_hashtag_list():
+    hashtag_list_q = {
+        'type': 'input',
+        'name': 'hashtags',
+        'message': 'Enter hashtag without the (#):',
+        'validate': HashtagValidator
+    }
+    hashtag = prompt(hashtag_list_q)
+    return hashtag['hashtags']
 
 
 if __name__ == '__main__':
