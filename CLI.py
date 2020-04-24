@@ -206,7 +206,7 @@ def get_settings():
         hashtag_list.append(new_hashtag)
 
     # assign values
-    Constants.RUN_MODE = 0 if answers['follow_status'] == 'Follow & Unfollow' else 1 if answers['follow_status'] == 'Follow only' else 2
+    Constants.RUN_MODE = 2 if answers['follow_status'] == 'Follow & Unfollow' else 1 if answers['follow_status'] == 'Follow only' else 0
     Constants.DAYS_TO_UNFOLLOW = int(answers['days_to_unfollow'] )
     Constants.LIKES_LIMIT = int(answers['likes_max'])
     Constants.CHECK_FOLLOWERS_EVERY = int(answers['check_followers_every'])

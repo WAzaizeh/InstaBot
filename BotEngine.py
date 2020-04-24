@@ -18,15 +18,17 @@ def get_webdriver(developer_mode=False):
 def close_driver(webdriver):
     webdriver.close()
 
-def update(follow=True, developer_mode=False):
-    p1 = Process(target = _check_follow_list, args = ((developer_mode,)))
-    p1.start()
-    if follow:
-        p2 = Process(target = _follow_new_users, args = ((developer_mode,)))
+def update(run_mode=0, developer_mode=False):
+    if run_mode > 0:
+        p1 = Process(target = _follow_new_users, args = ((developer_mode,)))
+        p1.start()
+    if not run_mode == 1:
+        p2 = Process(target = _check_follow_list, args = ((developer_mode,)))
         p2.start()
 
-    p1.join()
-    if follow:
+    if run_mode > 0:
+        p1.join()
+    if not run_mode == 1:
         p2.join()
 
 
@@ -47,6 +49,7 @@ def _check_follow_list(developer_mode):
         print("No users to unfollow at the moment...")
 
 def _follow_new_users(developer_mode):
+    print('Starting to follow & like new users..')
     webdriver = get_webdriver(developer_mode=developer_mode)
     AccountAgent.login(webdriver)
     AccountAgent.follow_people(webdriver)
