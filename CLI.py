@@ -3,7 +3,8 @@
 A personal customized InstaBot
 """
 from __future__ import print_function, unicode_literals
-from PyInquirer import style_from_dict, Token, prompt, Validator, ValidationError
+from PyInquirer import style_from_dict, Token, prompt, Validator, ValidationError, Separator
+from examples import custom_style_2
 import os
 import string
 import Constants
@@ -84,14 +85,15 @@ def main():
     # first time user
     if not Constants.INST_USER:
         get_username_pass()
-        # get_chrome_driver_path()
-        Constants.update_settings_file()
+        get_chrome_driver_path()
     # some username is already saved
     else:
         if settup_account() == 'Yes':
             get_username_pass()
             get_chrome_driver_path()
     change_settings()
+    change_developer_mode()
+    Constants.update_settings_file()
 
 
 def settup_account():
@@ -213,6 +215,45 @@ def get_settings():
     Constants.RUN_DURATION = int(answers['run_for'])
     Constants.HASHTAGS = hashtag_list
     Constants.update_settings_file()
+
+
+def change_developer_mode():
+        change_dev_mode_q = {
+            'type': 'list',
+            'name': 'change_dev_mode',
+            'message': 'Would you like to change chrome driver settings?',
+            'choices': ['Yes', 'No']
+        }
+        answer = prompt(change_dev_mode_q)
+        if answer['change_dev_mode'] == 'Yes':
+            get_dev_mode()
+
+
+def get_dev_mode():
+    dev_mode_q = {
+        'type': 'checkbox',
+        'name': 'dev_mode',
+        'message': 'Which functions would you like to run?',
+        'choices': [
+            {'name': '*Default',
+            'checked' : True},
+            Separator('= Developer Mode ='),
+            {'name': "Hedless mode - don't show browser page"},
+            {'name': "Detached mode - don't close browser page when interrupted"}]
+        }
+    answer = prompt(dev_mode_q, style=custom_style_2)
+
+    # assign value
+    Constants.DEVELOPER_MODE = 0
+    if sum( [box.startswith(('H','D')) for box in answer['dev_mode']]) == 2:
+        Constants.DEVELOPER_MODE = 2
+    elif any( box.startswith('H') for box in answer['dev_mode']):
+        Constants.DEVELOPER_MODE = 3
+    elif any( box.startswith('D') for box in answer['dev_mode']):
+        Constants.DEVELOPER_MODE = 1
+    print(answer['dev_mode'])
+    print(Constants.DEVELOPER_MODE)
+
 
 
 if __name__ == '__main__':

@@ -1,12 +1,13 @@
 import os
 import json
 INST_USER= INST_PASS= DATABASE_PATH= CHROME_DRIVER_PATH= ''
-RUN_MODE = LIKES_LIMIT= DAYS_TO_UNFOLLOW= CHECK_FOLLOWERS_EVERY= RUN_DURATION = 0
+RUN_MODE = DEVELOPER_MODE = LIKES_LIMIT= DAYS_TO_UNFOLLOW= CHECK_FOLLOWERS_EVERY= RUN_DURATION = 0
 HASHTAGS = []
 
 def init():
-    global INST_USER, INST_PASS, DATABASE_PATH,DATABASE_NAME,CHROME_DRIVER_PATH,\
-        LIKES_LIMIT, DAYS_TO_UNFOLLOW, CHECK_FOLLOWERS_EVERY, HASHTAGS
+    global INST_USER, INST_PASS, DATABASE_PATH,CHROME_DRIVER_PATH, RUN_MODE,\
+        DEVELOPER_MODE, LIKES_LIMIT, DAYS_TO_UNFOLLOW, CHECK_FOLLOWERS_EVERY,\
+        RUN_DURATION, HASHTAGS
     # read file
     data = None
     with open(os.getcwd()+'/settings.json', 'r') as json_file:
@@ -17,6 +18,7 @@ def init():
     DATABASE_PATH = obj['paths']['db_path']
     CHROME_DRIVER_PATH = obj['paths']['chrome_driver_path']
     RUN_MODE = obj['config']['run_mode']
+    DEVELOPER_MODE = obj['config']['developer_mode']
     LIKES_LIMIT = obj['config']['likes_over']
     CHECK_FOLLOWERS_EVERY= obj['config']['check_followers_every']
     RUN_DURATION = obj['config']['run_dauration']
@@ -36,6 +38,7 @@ def update_settings_file():
       },
       "config": {
         "run_mode": RUN_MODE,
+        "developer_mode": DEVELOPER_MODE,
         "days_to_unfollow": DAYS_TO_UNFOLLOW,
         "likes_over": LIKES_LIMIT,
         "check_followers_every": CHECK_FOLLOWERS_EVERY,

@@ -6,19 +6,20 @@ from csvHandler import csvHandler
 import datetime
 from multiprocessing import Process
 
-def get_webdriver(developer_mode=False):
+def get_webdriver(developer_mode=0):
     chromedriver_path = Constants.CHROME_DRIVER_PATH
     opts = ChromeOptions()
-    if developer_mode:
-        # change selenium settings to stay open when session is terminated
+    if developer_mode > 1:
         opts.add_experimental_option("detach", True)
+    if developer_mode > 0 and developer_mode < 3:
+        opt.add_argument('headless')
     webdriver = Webdriver.Chrome(executable_path=chromedriver_path, chrome_options=opts)
     return webdriver
 
 def close_driver(webdriver):
     webdriver.close()
 
-def update(run_mode=0, developer_mode=False):
+def update(run_mode=0, developer_mode=0):
     if run_mode > 0:
         p1 = Process(target = _follow_new_users, args = ((developer_mode,)))
         p1.start()
