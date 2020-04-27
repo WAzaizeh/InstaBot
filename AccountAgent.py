@@ -11,15 +11,19 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import TimeoutException
 import sys
+import logging
 
 
-def login(webdriver):
+def login(webdriver, logger_name):
+    # setup logger
+    log = logging.getLogger(logger_name)
+
     # Open the instagram login page
     webdriver.get('https://www.instagram.com/accounts/login/?source=auth_switcher')
     # Sleep for 3 seconds to prevent issues with the server
     sleep(3)
     # Find username and password fields and set their input using our constants
-    print('Logging in....')
+    log.info('Logging in....')
     username = webdriver.find_element_by_name('username')
     username.send_keys(Constants.INST_USER)
     password = webdriver.find_element_by_name('password')
@@ -31,12 +35,12 @@ def login(webdriver):
     try:
         user_image_xpath = "//a/img[contains(@alt,'profile picture')]"
         WebDriverWait(webdriver, 10).until(EC.visibility_of_element_located((By.XPATH, user_image_xpath)))
-        print('Login complete')
+        log.info('Login complete')
     except NoSuchElementException:
-        print('NoSuchElementException \nLogin failed...')
+        log.info('NoSuchElementException \nLogin failed...')
         webdriver.close()
     except TimeoutException as ex:
-        print('TimeoutException \nLogin failed...')
+        log.info('TimeoutException \nLogin failed...')
         webdriver.close()
     #In case you get a popup after logging in, press not now
     sleep(3)
@@ -48,7 +52,11 @@ def login(webdriver):
     except NoSuchElementException:
         return
 
-def unfollow_people(webdriver, people):
+
+def unfollow_people(webdriver, people, logger_name):
+    # setup logger
+    log = logging.getLogger(logger_name)
+
     # if only one user, append in a list
     if not isinstance(people, (list,)):
         p = people
@@ -74,7 +82,7 @@ def unfollow_people(webdriver, people):
             except NoSuchElementException:
                 webdriver.refresh()
             except Exception as e:
-                print('This user isn\'t followed')
+                log.info('This user isn\'t followed')
             else:
                 sleep(random.randint(1, 7))
                 webdriver.find_element_by_xpath(unfollow_check_xpath+'/../..').click()
@@ -84,11 +92,15 @@ def unfollow_people(webdriver, people):
                 removed += 1
                 csvHandler.delete_user(user)
                 sleep(random.randint(1, 4))
-                print('[{0}/{1}] {2} unfollowed'.format(removed, len(people), username))
+                log.info('[{0}/{1}] {2} unfollowed'.format(removed, len(people), username))
                 break
             tries += 1
 
-def follow_people(webdriver):
+
+def follow_people(webdriver, logger_name):
+    # setup logger
+    log = logging.getLogger(logger_name)
+
     # get and store all the followed user
     db = csvHandler()
     db.__init__()
@@ -110,7 +122,7 @@ def follow_people(webdriver):
 
             # start from the 1st most recent post
             start = dt.datetime.now()
-            print('Starting to follow & like new users under #{}....'.format(hashtag))
+            log.info('Starting to follow & like new users under #{}....'.format(hashtag))
             most_recent_xpath = '//article/div[2]/div/div[1]/div[1]/a/div[1]'
             WebDriverWait(webdriver, 10).until(EC.visibility_of_element_located((By.XPATH, most_recent_xpath)))
             most_recent = webdriver.find_element_by_xpath(most_recent_xpath)
@@ -125,7 +137,7 @@ def follow_people(webdriver):
                     try:
                         username_xpath = '/html/body/div[4]/div[2]/div/article/header/div[2]/div[1]/div[1]/a'
                         username = webdriver.find_element_by_xpath(username_xpath).text
-                        print("Detected: {0}".format(username))
+                        log.info("Detected: {0}".format(username))
                     except NoSuchElementException:
                         webdriver.refresh()
                         tries += 1
@@ -140,7 +152,7 @@ def follow_people(webdriver):
                         except:
                             likes_num = 0 # if the post has no likes
                         if likes_num > Constants.LIKES_LIMIT:
-                            print("likes over {0}".format(Constants.LIKES_LIMIT))
+                            log.info("likes over {0}".format(Constants.LIKES_LIMIT))
                             likes_over_limit = True
 
                         # if username isn't stored in the database and the likes are in the acceptable range
@@ -152,17 +164,17 @@ def follow_people(webdriver):
                                 follow_button.click()
                                 csvHandler.add_user(username)
                                 followed += 1
-                                print("Followed: {0}, #{1}".format(username, followed))
+                                log.info("Followed: {0}, #{1}".format(username, followed))
                                 new_followed.append(username)
                             except NoSuchElementException:
-                                print('Couldn\'t find Follow button for {}'.format(username))
+                                log.info('Couldn\'t find Follow button for {}'.format(username))
                                 continue
 
                         # Liking the picture
                         button_like = webdriver.find_element_by_xpath(like_button_xpath)
                         button_like.click()
                         likes += 1
-                        print("Liked {0}'s post, #{1}".format(username, likes))
+                        log.info("Liked {0}'s post, #{1}".format(username, likes))
                         sleep(random.randint(5, 18))
 
 
@@ -174,6 +186,8 @@ def follow_people(webdriver):
             #add new list to old list
             for n in range(0, len(new_followed)):
                 prev_user_list.append(new_followed[n])
-            print('For #{}:'.format(hashtag))
-            print('Liked {} photos.'.format(likes))
-            print('Followed {} new people.'.format(followed))
+            log.info('='*40)
+            log.info('For #{}:'.format(hashtag))
+            log.info('Liked {} photos.'.format(likes))
+            log.info('Followed {} new people.'.format(followed))
+            log.info('='*40)
