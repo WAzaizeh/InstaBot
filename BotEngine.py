@@ -4,7 +4,7 @@ from selenium.webdriver import ChromeOptions
 import AccountAgent
 from csvHandler import csvHandler
 from multiprocessing import Process
-import logging
+import logging, os
 
 
 # use seperate log files for unfollow and follow
@@ -53,7 +53,7 @@ def update(run_mode=0, developer_mode=0):
 def _check_follow_list(developer_mode):
     # setup logger for unfollow
     unfollow_logger = 'log1'
-    setup_logger(unfollow_logger, os.getcwd()+'/temp/unfollow.log')
+    setup_logger(unfollow_logger, os.getcwd()+'/unfollow.log')
     log1 = logging.getLogger(unfollow_logger)
     log1.info('Checking for users to unfollow..')
 
@@ -76,12 +76,11 @@ def _check_follow_list(developer_mode):
 def _follow_new_users(developer_mode):
     # setup logger for unfollow
     follow_logger = 'log2'
-    setup_logger(unfollow_logger, os.getcwd()+'/temp/follow.log')
-    log2 = logging.getLogger(unfollow_logger)
-    log2.info('Checking for users to unfollow..')
+    setup_logger(follow_logger, os.getcwd()+'/follow.log')
+    log2 = logging.getLogger(follow_logger)
+    log2.info('Starting to follow & like new users..')
 
     # follow new users
-    log2.info('Starting to follow & like new users..')
     webdriver = _get_webdriver(developer_mode=developer_mode)
     AccountAgent.login(webdriver, logger_name=follow_logger)
     AccountAgent.follow_people(webdriver, logger_name=follow_logger)

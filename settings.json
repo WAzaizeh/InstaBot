@@ -1,6 +1,6 @@
 {
  "paths":{
-  "db_path":"",
+  "db_path":"/Users/wesamazaizeh/Desktop/Projects/InstaBot/absee.csv",
   "chrome_driver_path":"/Users/wesamazaizeh/Desktop/Projects/chrome_driver/chromedriver"
  },
  "instagram":{
@@ -8,8 +8,8 @@
   "pass":"asbe"
  },
  "config":{
-  "run_mode":0,
-  "developer_mode":0,
+  "run_mode":2,
+  "developer_mode":3,
   "days_to_unfollow":3,
   "likes_over":150,
   "check_followers_every":10,
