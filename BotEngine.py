@@ -3,7 +3,6 @@ from selenium import webdriver as Webdriver
 from selenium.webdriver import ChromeOptions
 import AccountAgent
 from csvHandler import csvHandler
-import datetime
 from multiprocessing import Process
 
 def get_webdriver(developer_mode=0):
