@@ -168,7 +168,6 @@ def follow_people(webdriver, logger_name):
                                 new_followed.append(username)
                             except NoSuchElementException:
                                 log.info('Couldn\'t find Follow button for {}'.format(username))
-                                continue
 
                         # Liking the picture
                         button_like = webdriver.find_element_by_xpath(like_button_xpath)
@@ -176,6 +175,7 @@ def follow_people(webdriver, logger_name):
                         likes += 1
                         log.info("Liked {0}'s post, #{1}".format(username, likes))
                         sleep(random.randint(5, 18))
+                        break
 
 
                 # Next picture
